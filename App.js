@@ -1,20 +1,45 @@
+import { useCallback, useState} from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View, Button, FlatList } from 'react-native';
+import {useFonts} from "expo-font";
+import * as SplashScreen from 'expo-splash-screen';
 
 export default function App() {
+  const [data, setData] = useState([
+    {
+      id: 1,
+      name: "Olaroungbe"
+    },
+    {
+      id: 2,
+      name: "Jamiu"
+    }
+  ])
+
+  const [fontsLoaded] = useFonts({
+    "Italic": require("./assets/fonts/Poppins-Italic.ttf"),
+    "Medium": require("./assets/fonts/Poppins-Medium.ttf"),
+    "SemiBold": require("./assets/fonts/Poppins-SemiBold.ttf"),
+    "Thin": require("./assets/fonts/Poppins-Thin.ttf"),
+  })
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <View className="w-full flex-1 justify-center bg-white items-center" onLayout={onLayoutRootView}>
+      <Text className="pb-4" style={{fontFamily: "Thin"}}>Hello React Native</Text>
+      {/* <FlatList/> */}
+      <Button title="Click Me" className="w-full text-black"/>
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
