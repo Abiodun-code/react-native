@@ -1,19 +1,16 @@
 import { useCallback, useState} from 'react';
 import { StatusBar } from 'expo-status-bar';
-import {
-  View, 
-  Button, 
-  TextInput, 
-  StyleSheet, 
-  FlatList
- } from 'react-native';
+import { View, FlatList, Text, Button } from 'react-native';
 import {useFonts} from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
-import GoalItems from "./screens/GoalItems"
+import Goal from "./screens/Goal"
+import GoalInput from "./screens/GoalInput"
+import {styles} from "./Styles"
 
 export default function App() {
   const [enterGoal, setEnterGoal] = useState("")
   const [courseGoal, setCourseGoal] = useState([])
+  const [modalVisibility, setModalVisibility] = useState(false)
 
   const [fontsLoaded] = useFonts({
     "Italic": require("./assets/fonts/Poppins-Italic.ttf"),
@@ -33,42 +30,29 @@ export default function App() {
   }
 
   const onClick = () =>{
-    setCourseGoal([...courseGoal, enterGoal])
+    setCourseGoal([...courseGoal, {text: enterGoal, id: Math.random().toString()}])
+    setModalVisibility(false)
   }
 
   const goalInput = (enterText)=>{
     setEnterGoal(enterText)
   }
 
+  const deleteInput = (id) =>{
+    const copy = courseGoal.filter((item) => item.id !== id)
+    setCourseGoal(copy)
+  }
+
   return (
-    <View className="pt-20 w-[90%] mx-auto" onLayout={onLayoutRootView}>
-      <View className="w-full flex flex-row justify-between items-center pb-6 border-b border-gray-100">
-        <TextInput className="w-[75%]  p-[8px] border border-gray-100"
-         style={styles.Thin}
-          placeholder="Your Course Goal"
-          onChangeText={goalInput} />
-        <Button title="Add Goal" onPress={onClick}/>
+    <View className="mt-10 bg-blue-500 flex-1 w-[100%] mx-auto" onLayout={onLayoutRootView}>
+      <View className="w-[90%] mx-auto mt-11">
+        <Button title="Add New Goal" onPress={() => setModalVisibility(true)} />
       </View>
-      <FlatList data={courseGoal} keyExtractor={(item, index)=>{return item.index}}
-       renderItem={(itemData)=>{
-        return <GoalItems itemData={itemData}/>
-      }}/>
-      <StatusBar style="auto"/>
+      {modalVisibility ? <GoalInput setModalVisibility={setModalVisibility} visible={modalVisibility} onClick={onClick} goalInput={goalInput} /> : null}
+      <FlatList data={courseGoal} keyExtractor={(item)=>item.id}
+       renderItem={({item})=>( 
+        <Goal item={item} deleteInput={deleteInput}/>
+      )}/>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  Thin: {
-    fontFamily: "Thin"
-  },
-  Medium: {
-    fontFamily: "Medium"
-  },
-  SemiBold: {
-    fontFamily: "SemiBold"
-  },
-  Italic: {
-    fontFamily: "Italic"
-  }
-})
